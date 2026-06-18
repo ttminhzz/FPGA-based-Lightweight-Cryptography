@@ -43,6 +43,12 @@ The project is verified using:
 
 ## Verification Flow
 
+<img width="1197" height="674" alt="{6F7B0B98-AB28-4E9C-BC7A-76680BC2B1FC}" src="https://github.com/user-attachments/assets/1282c6c3-cd03-42af-ab06-b938923c7c54" />
+
+
+## UART Processing Flow
+
+<img width="1197" height="615" alt="{1DF485EA-DBB7-481A-84BA-F396AA475AC4}" src="https://github.com/user-attachments/assets/db9e1b0f-8c72-4615-9d82-4f84b087977e" />
 
 
 ---
