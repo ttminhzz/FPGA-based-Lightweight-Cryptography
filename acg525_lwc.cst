@@ -1,5 +1,3 @@
-
-
 IO_LOC "clk" T9;
 IO_PORT "clk" IO_TYPE=LVCMOS33;
 
