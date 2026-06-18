@@ -38,18 +38,12 @@ The project is verified using:
 
 ## System Block Diagram
 
-```text
-PC / RealTerm
-     |
-     | UART 115200 8N1
-     |
-FPGA Top Module
-     |
-     +-- UART Receiver
-     +-- Command Parser
-     +-- PRESENT-80 Encryption Core
-     +-- UART Transmitter
-```
+<img width="1201" height="674" alt="{9F6F5153-8E1C-471B-849D-9DBA9E601003}" src="https://github.com/user-attachments/assets/b47ef1a4-b4f0-4923-a62a-6f0ab14a1970" />
+
+
+## Verification Flow
+
+
 
 ---
 
