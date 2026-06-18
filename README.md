@@ -246,21 +246,6 @@ Recommended terminal software:
 
 ---
 
-## Timing and Resource Utilization
-
-| Item            |         Value |
-| --------------- | ------------: |
-| Clock frequency |        50 MHz |
-| Clock period    |         20 ns |
-| Worst slack     |   `[FILL] ns` |
-| Timing result   | `[PASS/FAIL]` |
-| LUT usage       |      `[FILL]` |
-| Register usage  |      `[FILL]` |
-| I/O usage       |      `[FILL]` |
-| BSRAM usage     |      `[FILL]` |
-| DSP usage       |      `[FILL]` |
-
----
 
 ## Project Status
 
