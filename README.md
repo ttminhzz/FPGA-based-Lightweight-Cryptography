@@ -388,9 +388,13 @@ Possible future improvements:
 ## References
 
 [1] A. Bogdanov et al., “PRESENT: An Ultra-Lightweight Block Cipher,” CHES 2007.
+
 [2] NIST SP 800-232, “Ascon-Based Lightweight Cryptography Standards for Constrained Devices.”
+
 [3] Hardware Implementations of NIST Lightweight Cryptographic Candidates on FPGA
+
 [4] Gowin Semiconductor, “GW5A Series of FPGA Products Data Sheet.” 
+
 [5] Xiaomeige / Gowin, “ACG525 GPIO Pin Table.”
 
 
