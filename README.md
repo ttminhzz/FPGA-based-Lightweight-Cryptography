@@ -1,145 +1,138 @@
-# FPGA-Based Lightweight Cryptography using PRESENT-80 - Group 1
+# FPGA-Based Lightweight Cryptography using PRESENT-80 on Gowin ACG525 - Group 1
 
+* Top module: `lwc_uart_top_debug`
+* Algorithm: PRESENT-80 Lightweight Block Cipher
+* Board: Gowin ACG525
+* FPGA: GW5A-LV25UG324C2/I1
+* Communication: UART 115200 baud
+* Verification: ModelSim, Python Golden Model, RealTerm board test
 
-This project implements a lightweight cryptography system on an FPGA board using the **PRESENT-80 block cipher**. The design is written in **Verilog HDL**, simulated using **ModelSim**, synthesized and implemented using **Gowin EDA Education**, and tested on the **Gowin ACG525 / GW5A-LV25UG324C2/I1 FPGA board** through UART communication.
+---
 
-The FPGA receives plaintext and key data from a PC, encrypts the data using the PRESENT-80 hardware core, and sends the ciphertext back to the PC through UART.
+## Mục lục
+
+* `present80_encrypt`
+* `uart_rx`
+* `uart_tx`
+* `lwc_uart_top_debug`
+* `lwc_uart_top_ascii`
+* `present80_golden.py`
+* ModelSim Simulation
+* Gowin EDA Implementation
+* UART Testing
+* Verification Results
 
 ---
 
 ## Project Overview
 
-PRESENT-80 is a lightweight block cipher designed for resource-constrained devices such as RFID, IoT devices, embedded systems, and low-power hardware platforms.
+This project implements a lightweight cryptography system on FPGA using the PRESENT-80 block cipher. The FPGA receives plaintext and key data from a PC through UART, encrypts the data using the PRESENT-80 hardware core, and sends the ciphertext back to the PC.
 
-In this project:
+The project is verified using:
 
-* Plaintext size: **64 bits**
-* Key size: **80 bits**
-* Ciphertext size: **64 bits**
-* Communication interface: **UART**
-* FPGA board: **Gowin ACG525**
-* FPGA device: **GW5A-LV25UG324C2/I1**
-* UART baud rate: **115200**
-* Verification method: **ModelSim simulation + Python golden model + real FPGA board test**
+* Python Golden Model
+* ModelSim simulation
+* RealTerm UART testing on the physical FPGA board
 
 ---
 
-## Repository Structure
-
-```text
-.
-├── rtl/
-│   ├── present80_encrypt.v
-│   ├── uart_rx.v
-│   ├── uart_tx.v
-│   ├── lwc_uart_top_ascii.v
-│   └── lwc_uart_top_debug.v
-│
-├── sim/
-│   ├── tb_present80_encrypt.v
-│   ├── tb_lwc_uart_top.v
-│   ├── run_present80.do
-│   └── run_uart_top.do
-│
-├── constraints/
-│   ├── acg525_lwc.cst
-│   └── acg525_lwc.sdc
-│
-├── golden_model/
-│   └── present80_golden.py
-│
-├── scripts/
-│   └── host_send_present80.py
-│
-└── README.md
-```
-
----
-
-## Hardware Used
-
-| Component         | Description             |
-| ----------------- | ----------------------- |
-| FPGA Board        | Gowin ACG525            |
-| FPGA Device       | GW5A-LV25UG324C2/I1     |
-| Clock             | 50 MHz                  |
-| UART Interface    | CH9102 USB-UART         |
-| Programming Tool  | Gowin Programmer / JTAG |
-| Terminal Software | RealTerm or Tera Term   |
-
----
-
-## Software Used
-
-| Software             | Purpose                                        |
-| -------------------- | ---------------------------------------------- |
-| Gowin EDA Education  | Synthesis, Place & Route, Bitstream generation |
-| ModelSim             | Verilog simulation                             |
-| Python               | Golden model verification                      |
-| RealTerm / Tera Term | UART communication with FPGA                   |
-
----
-
-## System Architecture
+## System Block Diagram
 
 ```text
 PC / RealTerm
      |
-     | UART
+     | UART 115200 8N1
      |
 FPGA Top Module
      |
      +-- UART Receiver
-     |
      +-- Command Parser
-     |
      +-- PRESENT-80 Encryption Core
-     |
      +-- UART Transmitter
 ```
 
-The PC sends plaintext and key data to the FPGA through UART.
-The FPGA parses the command, performs PRESENT-80 encryption, and returns the ciphertext.
+---
+
+## `present80_encrypt`
+
+File: `present80_encrypt.v`
+
+This module implements the PRESENT-80 encryption core.
+
+| Signal       | Direction | Width | Description         |
+| ------------ | --------- | ----: | ------------------- |
+| `clk`        | input     |     1 | System clock        |
+| `rst_n`      | input     |     1 | Active-low reset    |
+| `start`      | input     |     1 | Start encryption    |
+| `plaintext`  | input     |    64 | 64-bit plaintext    |
+| `key`        | input     |    80 | 80-bit key          |
+| `ciphertext` | output    |    64 | 64-bit ciphertext   |
+| `done`       | output    |     1 | Encryption finished |
 
 ---
 
-## UART Protocol
+## `uart_rx`
 
-UART configuration:
+File: `uart_rx.v`
 
-```text
-Baud rate: 115200
-Data bits: 8
-Parity: None
-Stop bits: 1
-Flow control: None
-```
+This module receives serial UART data from the PC.
 
-### Self-Test Command
+| Signal       | Direction | Width | Description                        |
+| ------------ | --------- | ----: | ---------------------------------- |
+| `clk`        | input     |     1 | System clock                       |
+| `rst_n`      | input     |     1 | Active-low reset                   |
+| `rx`         | input     |     1 | UART RX input                      |
+| `data_out`   | output    |     8 | Received byte                      |
+| `data_valid` | output    |     1 | One-clock pulse when byte is ready |
 
-Send:
+---
+
+## `uart_tx`
+
+File: `uart_tx.v`
+
+This module transmits UART data from the FPGA to the PC.
+
+| Signal     | Direction | Width | Description                   |
+| ---------- | --------- | ----: | ----------------------------- |
+| `clk`      | input     |     1 | System clock                  |
+| `rst_n`    | input     |     1 | Active-low reset              |
+| `tx_start` | input     |     1 | Start transmitting one byte   |
+| `tx_data`  | input     |     8 | Byte to transmit              |
+| `tx`       | output    |     1 | UART TX output                |
+| `tx_busy`  | output    |     1 | High when transmitter is busy |
+
+---
+
+## `lwc_uart_top_debug`
+
+File: `lwc_uart_top_debug.v`
+
+This is the top-level module used for board testing.
+
+| Signal    | Direction | Width | Description                |
+| --------- | --------- | ----: | -------------------------- |
+| `clk`     | input     |     1 | 50 MHz board clock         |
+| `rst_n`   | input     |     1 | Active-low reset from KEY0 |
+| `uart_rx` | input     |     1 | UART data from PC          |
+| `uart_tx` | output    |     1 | UART data to PC            |
+| `led`     | output    |     4 | Status LEDs                |
+
+### Supported UART Commands
+
+Self-test command:
 
 ```text
 T
 ```
 
-Expected response:
+Expected output:
 
 ```text
 CT=5579C1387B228445
 ```
 
-This command uses the default PRESENT-80 test vector:
-
-```text
-Plaintext = 0000000000000000
-Key       = 00000000000000000000
-Ciphertext = 5579C1387B228445
-```
-
-### Custom Encryption Command
-
-Send:
+Custom encryption command:
 
 ```text
 E <plaintext_16_hex> <key_20_hex>
@@ -148,22 +141,10 @@ E <plaintext_16_hex> <key_20_hex>
 Example:
 
 ```text
-E 0000000000000000 00000000000000000000
-```
-
-Expected response:
-
-```text
-CT=5579C1387B228445
-```
-
-Another example:
-
-```text
 E DEADBEEFCAFEBABE 00112233445566778899
 ```
 
-Expected response:
+Expected output:
 
 ```text
 CT=02A7002C724248E1
@@ -173,9 +154,9 @@ CT=02A7002C724248E1
 
 ## Python Golden Model
 
-A Python golden model is included to verify the FPGA output.
+File: `golden_model/present80_golden.py`
 
-The golden model simulates the PRESENT-80 algorithm independently from the Verilog design. It is used to generate the expected ciphertext for each plaintext/key pair.
+The golden model is used to generate the expected ciphertext independently from the Verilog design.
 
 Run:
 
@@ -191,83 +172,35 @@ K =00000000000000000000
 CT=5579C1387B228445
 ```
 
-Example with custom input:
-
-```powershell
-py present80_golden.py DEADBEEFCAFEBABE 00112233445566778899
-```
-
-Expected output:
-
-```text
-CT=02A7002C724248E1
-```
-
 ---
 
 ## ModelSim Simulation
 
-The `sim/` folder contains ModelSim testbenches and `.do` scripts.
+The `sim/` folder contains testbenches and `.do` scripts.
 
-### Simulate PRESENT-80 Core
-
-Open ModelSim, change directory to the `sim/` folder, then run:
+Run PRESENT-80 core simulation:
 
 ```tcl
 do run_present80.do
 ```
 
-This test checks the PRESENT-80 encryption core using the standard test vector:
-
-```text
-Plaintext = 0000000000000000
-Key       = 00000000000000000000
-Expected  = 5579C1387B228445
-```
-
-### Simulate UART Top-Level System
-
-Run:
+Run UART top-level simulation:
 
 ```tcl
 do run_uart_top.do
 ```
 
-This simulation verifies the UART receiver, command parser, PRESENT-80 core, and UART transmitter together.
-
 ---
 
-## Gowin EDA Build Steps
+## Gowin EDA Implementation
 
-1. Open Gowin EDA Education.
-2. Create a new Verilog project.
-3. Select device:
+Device:
 
 ```text
 GW5A-LV25UG324C2/I1
 ```
 
-4. Add all Verilog files from the `rtl/` folder.
-5. Set the top module:
-
-```text
-lwc_uart_top_debug
-```
-
-or:
-
-```text
-lwc_uart_top_ascii
-```
-
-6. Add constraint files:
-
-```text
-constraints/acg525_lwc.cst
-constraints/acg525_lwc.sdc
-```
-
-7. Run:
+Main steps:
 
 ```text
 Synthesis
@@ -276,38 +209,29 @@ Generate Bitstream
 Program Device
 ```
 
-8. Open RealTerm or Tera Term and test through UART.
+Constraint files:
+
+```text
+constraints/acg525_lwc.cst
+constraints/acg525_lwc.sdc
+```
 
 ---
 
-## Constraint Files
+## UART Configuration
 
-### Physical Constraint File
+| Parameter    | Value  |
+| ------------ | ------ |
+| Baud rate    | 115200 |
+| Data bits    | 8      |
+| Parity       | None   |
+| Stop bits    | 1      |
+| Flow control | None   |
 
-The `.cst` file maps Verilog signals to real FPGA pins on the ACG525 board.
+Recommended terminal software:
 
-Example mappings:
-
-| Signal           | Function           |
-| ---------------- | ------------------ |
-| `clk`            | 50 MHz board clock |
-| `uart_tx`        | UART transmit      |
-| `uart_rx`        | UART receive       |
-| `key0` / `rst_n` | Reset              |
-| `led[3:0]`       | Status LEDs        |
-
-### Timing Constraint File
-
-The `.sdc` file defines the main system clock timing requirement.
-
-The board clock is 50 MHz:
-
-```text
-Clock frequency = 50 MHz
-Clock period    = 20 ns
-```
-
-This allows Gowin EDA to check whether the design can operate correctly at the required frequency.
+* RealTerm
+* Tera Term
 
 ---
 
@@ -320,68 +244,32 @@ This allows Gowin EDA to check whether the design can operate correctly at the r
 |    3 | `0000000000000000` | `FFFFFFFFFFFFFFFFFFFF` | `E72C46C0F5945049`  | `E72C46C0F5945049` | PASS          |
 |    4 | `FFFFFFFFFFFFFFFF` | `FFFFFFFFFFFFFFFFFFFF` | `3333DCD3213210D2`  | `3333DCD3213210D2` | PASS          |
 
-
 ---
 
-## Example RealTerm Output
+## Timing and Resource Utilization
 
-After programming the FPGA and pressing reset:
+| Item            |         Value |
+| --------------- | ------------: |
+| Clock frequency |        50 MHz |
+| Clock period    |         20 ns |
+| Worst slack     |   `[FILL] ns` |
+| Timing result   | `[PASS/FAIL]` |
+| LUT usage       |      `[FILL]` |
+| Register usage  |      `[FILL]` |
+| I/O usage       |      `[FILL]` |
+| BSRAM usage     |      `[FILL]` |
+| DSP usage       |      `[FILL]` |
 
-```text
-READY
-```
-
-Send:
-
-```text
-T
-```
-
-Expected response:
-
-```text
-CT=5579C1387B228445
-```
 ---
 
 ## Project Status
 
-Current status:
-
-* PRESENT-80 encryption core implemented
-* UART communication working
-* Python golden model working
-* ModelSim simulation available
-* FPGA board test successful
-* RealTerm output verified with known test vector
-
----
-
-## Limitations
-
-This project currently supports only encryption. It does not yet include:
-
-* PRESENT-80 decryption
-* PRESENT-128
-* CBC / CTR / OFB / CFB modes
-* Multi-block file encryption
-* Power consumption measurement
-* Side-channel attack protection
-
----
-
-## Future Work
-
-Possible future improvements:
-
-* Add PRESENT-80 decryption
-* Add PRESENT-128 support
-* Add CBC or CTR mode
-* Automate UART testing from Python
-* Display ciphertext on OLED or seven-segment LEDs
-* Compare FPGA resource usage with AES or Ascon
-* Measure power consumption
-* Optimize area or throughput
+* PRESENT-80 encryption core: completed
+* UART communication: completed
+* Python golden model: completed
+* ModelSim simulation: completed
+* Physical FPGA board test: completed
+* Report and verification table: in progress
 
 ---
 
@@ -397,15 +285,12 @@ Possible future improvements:
 
 [5] Xiaomeige / Gowin, “ACG525 GPIO Pin Table.”
 
-
 ---
 
 ## Author
 
-Created by:
-
 ```text
-TT.Minh aka ardashie cung thanh vien nhom 1
+TT.Minh va group 1
 ```
 
-For FPGA Programming coursework.
+FPGA Programming Course Project.
