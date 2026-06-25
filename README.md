@@ -171,6 +171,204 @@ PT=0000000000000000
 K =00000000000000000000
 CT=5579C1387B228445
 ```
+---
+## Why Are `T` and `E` Commands Used?
+
+UART only transfers a stream of bytes. It does not automatically know whether the received bytes represent a plaintext, an encryption key, a test request, or another type of data.
+
+Therefore, this project defines a simple **application-level UART command protocol**. The first character tells the FPGA how the remaining data should be interpreted.
+
+| Command | Meaning | Description                                                  |
+| ------- | ------- | ------------------------------------------------------------ |
+| `T`     | Test    | Runs a built-in PRESENT-80 test vector                       |
+| `E`     | Encrypt | Encrypts a user-provided plaintext using a user-provided key |
+
+### Self-Test Command: `T`
+
+The command:
+
+```text
+T
+```
+
+instructs the FPGA to run a predefined test using:
+
+```text
+Plaintext = 0000000000000000
+Key       = 00000000000000000000
+```
+
+The expected response is:
+
+```text
+CT=5579C1387B228445
+```
+
+This command is useful for quickly checking whether:
+
+* the FPGA has been programmed correctly;
+* the UART connection is working;
+* the PRESENT-80 core produces the correct known ciphertext;
+* the UART transmitter can return the result to the PC.
+
+No plaintext or key needs to be entered manually because both values are already stored in the self-test logic.
+
+---
+
+### Custom Encryption Command: `E`
+
+The general encryption command is:
+
+```text
+E <plaintext> <key>
+```
+
+For example:
+
+```text
+E 0000000000000000 00000000000000000000
+```
+
+The fields have the following meanings:
+
+| Field     |                    Length | Meaning                          |
+| --------- | ------------------------: | -------------------------------- |
+| `E`       |               1 character | Requests an encryption operation |
+| Plaintext | 16 hexadecimal characters | 64-bit input block               |
+| Key       | 20 hexadecimal characters | 80-bit encryption key            |
+
+The space characters are used as separators so that the command is easier for a person to read. They do not form part of the plaintext or key.
+
+After receiving the complete command, the FPGA:
+
+1. detects the `E` command;
+2. receives the 16-character plaintext;
+3. receives the 20-character key;
+4. converts the ASCII hexadecimal characters into binary values;
+5. starts the PRESENT-80 encryption core;
+6. converts the 64-bit ciphertext back into hexadecimal text;
+7. sends the result through UART.
+
+Example response:
+
+```text
+CT=5579C1387B228445
+```
+
+---
+
+## Why Are Hexadecimal Characters Used?
+
+The plaintext, key, and ciphertext are represented in **hexadecimal notation**.
+
+Hexadecimal uses these sixteen symbols:
+
+```text
+0 1 2 3 4 5 6 7 8 9 A B C D E F
+```
+
+Each hexadecimal character represents exactly four binary bits:
+
+| Hexadecimal | Binary |
+| ----------- | ------ |
+| `0`         | `0000` |
+| `1`         | `0001` |
+| `9`         | `1001` |
+| `A`         | `1010` |
+| `B`         | `1011` |
+| `F`         | `1111` |
+
+Therefore:
+
+```text
+16 hexadecimal characters × 4 bits = 64-bit plaintext
+20 hexadecimal characters × 4 bits = 80-bit key
+16 hexadecimal characters × 4 bits = 64-bit ciphertext
+```
+
+For example:
+
+```text
+Plaintext = DEADBEEFCAFEBABE
+Key       = 00112233445566778899
+```
+
+is sent as:
+
+```text
+E DEADBEEFCAFEBABE 00112233445566778899
+```
+
+The FPGA returns the corresponding ciphertext in the same readable hexadecimal format:
+
+```text
+CT=02A7002C724248E1
+```
+
+---
+
+## Why Use ASCII Instead of Raw Binary Data?
+
+The UART interface uses ASCII hexadecimal text rather than raw binary bytes because ASCII is easier to:
+
+* enter manually using RealTerm or Tera Term;
+* read and verify on the screen;
+* include in screenshots and demonstrations;
+* compare with the Python golden model;
+* debug when communication errors occur;
+* use without special handling for bytes such as `0x00`.
+
+For example, the ASCII command:
+
+```text
+E 0000000000000000 00000000000000000000
+```
+
+is easier to understand than the equivalent raw binary packet:
+
+```text
+45 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+```
+
+ASCII communication requires more transmitted bytes and is less efficient than a binary protocol. However, this project prioritizes clarity, debugging, and demonstration rather than maximum communication speed.
+
+---
+
+## UART Commands and Python Commands Are Different
+
+Commands beginning with:
+
+```powershell
+py present80_golden.py
+```
+
+are executed on the PC and are **not sent to the FPGA**.
+
+For example:
+
+```powershell
+py present80_golden.py 0000000000000000 00000000000000000000
+```
+
+runs the Python golden model and calculates the expected ciphertext on the computer.
+
+The command:
+
+```text
+E 0000000000000000 00000000000000000000
+```
+
+is sent through UART to the FPGA and calculates the actual ciphertext using the hardware implementation.
+
+The two results are then compared:
+
+```text
+Python Golden Model CT = 5579C1387B228445
+FPGA Hardware CT       = 5579C1387B228445
+Result                 = PASS
+```
+
+This comparison verifies that the FPGA implementation behaves correctly.
 
 ---
 
