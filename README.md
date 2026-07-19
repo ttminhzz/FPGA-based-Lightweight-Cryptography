@@ -461,33 +461,41 @@ Recommended terminal software:
 [1] K. McKay, L. Bassham, M. S. Turan, and N. Mouha, “Report on
 lightweight cryptography,” National Institute of Standards and Technol-
 ogy, Tech. Rep. NISTIR 8114, 2017.
+
 [2] A. Bogdanov, L. R. Knudsen, G. Leander, C. Paar, A. Poschmann,
 M. J. B. Robshaw, Y. Seurin, and C. Vikkelsoe, “PRESENT: An ultra-
 lightweight block cipher,” in Cryptographic Hardware and Embedded
 Systems – CHES 2007, ser. Lecture Notes in Computer Science, vol.
 4727. Springer, 2007, pp. 450–466.
+
 [3] International Organization for Standardization, “Information security—
 lightweight cryptography—part 2: Block ciphers,” ISO/IEC, Tech. Rep.
 ISO/IEC 29192-2:2019, 2019.
+
 [4] M. S. Turan, K. McKay, J. Kang, J. Kelsey, and D. Chang, “Ascon-based
 lightweight cryptography standards for constrained devices: Authenticated
 encryption, hash, and extendable output functions,” National Institute of
 Standards and Technology, Tech. Rep. NIST Special Publication 800-232,
 2025.
+
 [5] S. Kerckhof, F. Durvaux, C. Hocquet, D. Bol, and F.-X. Standaert,
 “Towards green cryptography: A comparison of lightweight ciphers
 from the energy viewpoint,” in Cryptographic Hardware and Embedded
 Systems – CHES 2012, ser. Lecture Notes in Computer Science, vol. 7428.
 Springer, 2012, pp. 390–407.
+
 [6] A. Y. Poschmann, “Lightweight cryptography: Cryptographic engineering
 for a pervasive world,” Ph.D. dissertation, Ruhr-University Bochum, 2009,
 iACR Cryptology ePrint Archive, Report 2009/516.
+
 [7] S. Kolay and D. Mukhopadhyay, “Khudra: A new lightweight block
 cipher for FPGAs,” in Security, Privacy, and Applied Cryptography En-
 gineering, ser. Lecture Notes in Computer Science, vol. 8804. Springer,
 2014, pp. 126–145.
+
 [8] Gowin Semiconductor Corporation, GW5A Series of FPGA Products Data
 Sheet, Gowin Semiconductor Corporation, 2025.
+
 [9] Xiaomeige FPGA Team, Pin Information Table of the ACG525 Gowin
 FPGA Development Board, Wuhan Xinluheng Technology, 2025, board
 pin-assignment document supplied with the development kit.
