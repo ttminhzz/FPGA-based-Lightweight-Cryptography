@@ -459,8 +459,7 @@ Recommended terminal software:
 ## References
 
 [1] K. McKay, L. Bassham, M. S. Turan, and N. Mouha, “Report on
-lightweight cryptography,” National Institute of Standards and Technol-
-ogy, Tech. Rep. NISTIR 8114, 2017.
+lightweight cryptography,” National Institute of Standards and Technology, Tech. Rep. NISTIR 8114, 2017.
 
 [2] A. Bogdanov, L. R. Knudsen, G. Leander, C. Paar, A. Poschmann,
 M. J. B. Robshaw, Y. Seurin, and C. Vikkelsoe, “PRESENT: An ultra-
