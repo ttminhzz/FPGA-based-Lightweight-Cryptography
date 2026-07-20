@@ -444,18 +444,6 @@ Recommended terminal software:
 
 ---
 
-
-## Project Status
-
-* PRESENT-80 encryption core: completed
-* UART communication: completed
-* Python golden model: completed
-* ModelSim simulation: completed
-* Physical FPGA board test: completed
-* Report and verification table: in progress
-
----
-
 ## References
 
 [1] K. McKay, L. Bassham, M. S. Turan, and N. Mouha, “Report on
